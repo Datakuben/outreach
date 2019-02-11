@@ -3,13 +3,12 @@
   <head>
     <meta charset="UTF-8">
     <title>DATAKUBEN - Home</title>
+    <link href="/vuetify.min.css" rel="stylesheet">
+    <script src="/velocity.min.js"></script>
     <script src="/vue.js"></script>
     <script src="/vuetify.js"></script>
-    <script src="/velocity.min.js"></script>
-    <link href="/vuetify.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <script src="/danishauthors.js"></script>
     <style>
       #intro {
         width: 100%;
@@ -38,9 +37,11 @@
         grid-template-columns: 560px 1fr;
         grid-column-gap: 0;
       }
-
-      /* Enter and leave animations can use different */
-      /* durations and timing functions.              */
+      .textfieldInput {
+        grid-template-columns: 1fr 100px;
+        grid-column-gap: 1em;
+        grid-template-rows: none
+      }
       .slide-fade-enter-active {
         transition: all .3s ease;
       }
@@ -54,6 +55,10 @@
       {
         transform: translateX(10px);
         opacity: 0;
+      }
+      .highlight{
+        background-color: #0d47a1;
+        color: white;
       }
     </style>
   </head>
@@ -409,6 +414,7 @@
                 </div><!-- corpora -->
               </transition>
               <transition name="slide-fade">
+                <script src="/danishauthors.js"></script>
                 <div
                   v-if="currentPage == 'danish'"
                   class="content danish"
@@ -444,6 +450,57 @@
                     </v-card-text>
                   </v-card>
                 </div><!-- danish -->
+              </transition>
+              <transition name="slide-fade">
+                <script src="/stopwords.js"></script>
+                <div
+                  v-if="currentPage == 'stopWords'"
+                  class="content stopWords"
+                >
+                  <v-card
+                    elevation-4
+                    color="grey lighten-4"
+                  >
+                    <v-card-title>
+                      <h3 class="headline mb-0">How to add a list of stopwords to Jupyter Notebooks</h3>
+                    </v-card-title>
+                    <v-card-text>
+                      <div class="grid textfieldInput">
+                        <v-text-field
+                          v-model="newword"
+                          label="Include another stopword"
+                        ></v-text-field>
+                        <v-btn
+                          color="grey"
+                          small
+                          @click="addStopWord"
+                        >Add
+                        </v-btn>
+                      </div>
+                      <div class="text-xs-center">
+                        <code>stopwords = [<transition-group
+                          name="staggered-fade"
+                          tag="span"
+                          v-bind:css="false"
+                          v-on:before-enter="beforeEnter"
+                          v-on:enter="enter"
+                          v-on:leave="leave"
+                        ><template
+                            v-for="(item, index) in stopwords"
+                            close
+                          ><span
+                            :key="item.text"
+                            :data-index="index"
+                            :class="{'highlight': index === highlightedIndex}"
+                            @click="removeStopWord(index)">"{{ item.text }}"</span><span
+                            :key="','+item.text"
+                            :data-index="index"
+                            v-if="index < stopwords.length - 1">, </span></template>
+                        </transition-group>]</code>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </div><!-- stopWords -->
               </transition>
               <transition name="slide-fade">
                 <div
@@ -566,6 +623,7 @@
                   <v-card
                     elevation-4
                     color="grey lighten-4"
+                    @click="openPage('stopWords')"
                   >
                     <div class="grid imageCard">
                       <v-img
@@ -659,10 +717,11 @@
         </v-layout>
       </v-container>
     </div>
-  <script>
+    <script>
       let app = new Vue({
         el: '#app',
         data: {
+          currentPage: 'stopWords',
           windowWidth: 0,
           query: '',
           headers: [
@@ -680,7 +739,8 @@
             sortBy: 'author'
           },
           pageSizes: [25, 50, 100, 250, 500, 1000],
-          currentPage: 'danish',
+          newword: '',
+          stopwords: stopwords,
           currentVideo: 0,
           pages: {
             home: {
@@ -733,6 +793,16 @@
                 body: "Fulltext search of publications in the danish corpus"
               },
               authors: danishauthors,
+              src: 'corpora.jpg'
+            },
+            stopWords: {
+              title: 'Stopwords',
+              contentAlias: 'stopWords',
+              intro: {
+                title: "List of Stopwords",
+                body: "How to add a list of stopwords to jupyter notebooks"
+              },
+              stopWords: stopwords,
               src: 'corpora.jpg'
             },
             prepareData: {
@@ -848,6 +918,21 @@
           previousPage: null,
         },
         computed: {
+          stopWordsCode() {
+            let code = 'stopWords = [';
+            this.page.stopWords.forEach((word, index) => {
+              code += '"' + word.text + '"';
+              if (index < this.page.stopWords.length - 1) {
+                code += ', '
+              }
+            })
+            code += ']';
+            return code
+          },
+          highlightedIndex() {
+            let vm = this
+            return this.stopwords.findIndex(word => word.text === vm.newword)
+          },
           page() {
             return this.pages[this.currentPage] || this.previousPage
           },
@@ -887,6 +972,18 @@
           }
         },
         methods: {
+          addStopWord() {
+            let vm = this;
+            const index = this.stopwords.findIndex(word => word.text === vm.newword)
+            if (index < 0) {
+              this.stopwords.push({
+                text: this.newword
+              })
+            }
+          },
+          removeStopWord(index) {
+            this.page.stopWords.splice(index, 1)
+          },
           openVideo(index) {
             this.currentVideo = index;
             document.getElementById('player').scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
@@ -895,8 +992,32 @@
             this.previousPage = this.page;
             this.currentPage = null;
             const that = this;
-            setTimeout(() => {that.currentPage = name}, 500);
+            setTimeout(() => {that.currentPage = name}, 50);
             document.title = `DATAKUBEN - ${name}`
+          },
+          beforeEnter: function (el) {
+            el.style.opacity = 0
+            el.style.height = 0
+          },
+          enter: function (el, done) {
+            const delay = 150
+            setTimeout(function () {
+              Velocity(
+                el,
+                {opacity: 1, height: '1.6em'},
+                {complete: done}
+              )
+            }, delay)
+          },
+          leave: function (el, done) {
+            const delay = 150
+            setTimeout(function () {
+              Velocity(
+                el,
+                {opacity: 0, height: 0},
+                {complete: done}
+              )
+            }, delay)
           }
         },
         mounted() {

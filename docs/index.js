@@ -1,7 +1,10 @@
-// import Vue from 'vue'
-// import Vuetify from 'vuetify'
-// const vuetiCSS = require('vuetify/dist/vuetify.min.css') // Ensure you are using css-loader
+import Vue from 'vue'
+import App from './App'
 
-// Vue.use(Vuetify);
-
-
+Vue.config.productionTip = false
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  template: '<App/>',
+  components: {App}
+})
