@@ -1,4 +1,4 @@
-const danishauthors = [
+const corpus = [
   {"id": "oehl01val_workid64905", "author": "Adam Oehlenschläger", "title": "Høsten, af 'poetiske skrifter', første deel', 1805", "edition": "POETISKE SKRIFTER I", "yearOfBirth": 1779, "yearOfDeath": 1850},
 {"id": "oehl02val_workid59720", "author": "Adam Oehlenschläger", "title": "Aladdin, eller den forunderlige lampe", "edition": "POETISKE SKRIFTER II", "yearOfBirth": 1779, "yearOfDeath": 1850},
 {"id": "oehl01val_workid75421", "author": "Adam Oehlenschläger", "title": "Aften-sang", "edition": "POETISKE SKRIFTER I", "yearOfBirth": 1779, "yearOfDeath": 1850},
@@ -8787,3 +8787,4 @@ const danishauthors = [
   {"id": "larsenk_09_workid54089", "author": "kapitel", "title": "Lægemidler", "edition": "DOMMENS DAG", "yearOfBirth": 0, "yearOfDeath": 0},
   {"id": "saxoval_workid54112", "author": "Saxo", "title": "Fra piazza del popolo", "edition": "i	Saxos Danmarkshistorie", "yearOfBirth": 1132, "yearOfDeath": 1208}
 ];
+export default corpus
